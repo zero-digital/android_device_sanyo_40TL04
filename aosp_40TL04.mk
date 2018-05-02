@@ -23,10 +23,7 @@
 
 # Live Wallpapers
 PRODUCT_PACKAGES += \
-        LiveWallpapers \
         LiveWallpapersPicker \
-        MagicSmokeWallpapers \
-        VisualizationWallpapers \
         librs_jni
 
 PRODUCT_PROPERTY_OVERRIDES := \
@@ -34,10 +31,11 @@ PRODUCT_PROPERTY_OVERRIDES := \
         net.dns2=8.8.4.4
 
 # Inherit from those products. Most specific first.
+#$(call inherit-product, $(SRC_TARGET_DIR)/product/aosp_base.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/full_base.mk)
 $(call inherit-product, device/sanyo/40TL04/device.mk)
 
-PRODUCT_NAME := full_40TL04
+PRODUCT_NAME := aosp_40TL04
 PRODUCT_DEVICE := 40TL04
 PRODUCT_BRAND := benesse
 PRODUCT_MODEL := 40TL04

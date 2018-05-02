@@ -1,0 +1,31 @@
+#!/system/bin/sh
+setprop wifi.interface wlan0
+setprop "wlan.driver.apmode" "unloaded"
+mkdir /data/misc/wifi/wpa_supplicant
+mkdir /data/misc/wifi/hostapd
+mkdir /data/system/wpa_supplicant /data/system/hostapd  
+chmod 770 /data/misc/wifi/wpa_supplicant /data/misc/wifi/hostapd
+chmod 770 /data/system/wpa_supplicant /data/system/hostapd
+chown wifi.wifi /data/misc/wifi/wpa_supplicant /data/misc/wifi/hostapd
+chown wifi.wifi /data/system/wpa_supplicant /data/system/hostapd
+
+#insmod /system/wifi/mlan.ko
+#insmod /system/wifi/sd8787.ko
+cat /system/wifi/sd8787_uapsta.bin > /sys/module/sd8xxx/sysfs/firmware
+cat /sys/module/sd8xxx/sysfs/firmware
+
+set_macaddr
+
+iwpriv wlan0 regioncode 0x41
+iwpriv wlan0 bandcfg 3
+iwpriv wlan0 txpowercfg 4 13
+iwpriv wlan0 txpowercfg 5 13
+iwpriv wlan0 txpowercfg 6 13
+iwpriv wlan0 txpowercfg 7 13
+iwpriv wlan0 txpowercfg 8 13
+iwpriv wlan0 txpowercfg 9 13
+iwpriv wlan0 txpowercfg 10 13
+iwpriv wlan0 txpowercfg 11 13
+iwpriv wlan0 hscfg 0
+
+setprop "wlan.driver.status" "ok"

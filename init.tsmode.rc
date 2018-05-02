@@ -1,0 +1,13 @@
+#!/system/bin/sh
+
+chmod 644 /dev/mts
+chown system /dev/mts
+chmod 644 /dev/cam
+chown system /dev/cam
+#Touch Panel Calibration Data
+chown system /factory/calibration
+chmod 644 /factory/calibration
+#Touch Panel Controller Calibration Data
+chown system /factory/CalibReg
+chmod 644 /factory/CalibReg
+

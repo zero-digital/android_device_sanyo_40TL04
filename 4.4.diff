@@ -1,0 +1,97 @@
+
+project frameworks/base/
+diff --git a/core/java/android/view/HardwareRenderer.java b/core/java/android/view/HardwareRenderer.java
+index f215189..e1052a7 100644
+--- a/core/java/android/view/HardwareRenderer.java
++++ b/core/java/android/view/HardwareRenderer.java
+@@ -213,7 +213,7 @@ public abstract class HardwareRenderer {
+      *
+      * @hide
+      */
+-    public static boolean sRendererDisabled = false;
++    public static boolean sRendererDisabled = true;
+ 
+     /**
+      * Further hardware renderer disabling for the system process.
+
+project frameworks/native/
+diff --git a/opengl/libs/EGL/Loader.cpp b/opengl/libs/EGL/Loader.cpp
+index 02914a0..3b359cb 100644
+--- a/opengl/libs/EGL/Loader.cpp
++++ b/opengl/libs/EGL/Loader.cpp
+@@ -175,11 +175,14 @@ void* Loader::open(egl_connection_t* cnx)
+     dso = load_driver("GLES", cnx, EGL | GLESv1_CM | GLESv2);
+     if (dso) {
+         hnd = new driver_t(dso);
++ALOGD("dso");
+     } else {
+         // Always load EGL first
+         dso = load_driver("EGL", cnx, EGL);
++ALOGD("!dso");
+         if (dso) {
+             hnd = new driver_t(dso);
++ALOGD("hnd");
+             hnd->set( load_driver("GLESv1_CM", cnx, GLESv1_CM), GLESv1_CM );
+             hnd->set( load_driver("GLESv2",    cnx, GLESv2),    GLESv2 );
+         }
+@@ -269,7 +272,8 @@ void *Loader::load_driver(const char* kind,
+             pattern.appendFormat("lib%s", kind);
+             const char* const searchPaths[] = {
+                     "/vendor/lib/egl",
+-                    "/system/lib/egl"
++                    "/system/lib/egl",
++                    "/system/lib"
+             };
+ 
+             // first, we search for the exact name of the GLES userspace
+@@ -307,7 +311,8 @@ void *Loader::load_driver(const char* kind,
+ 
+             // in the emulator case, we just return the hardcoded name
+             // of the software renderer.
+-            if (checkGlesEmulationStatus() == 0) {
++            //if (checkGlesEmulationStatus() == 0) {
++            if (true) {
+                 ALOGD("Emulator without GPU support detected. "
+                       "Fallback to software renderer.");
+                 result.setTo("/system/lib/egl/libGLES_android.so");
+diff --git a/services/surfaceflinger/SurfaceFlinger.cpp b/services/surfaceflinger/SurfaceFlinger.cpp
+index 9d94c87..2f53758 100644
+--- a/services/surfaceflinger/SurfaceFlinger.cpp
++++ b/services/surfaceflinger/SurfaceFlinger.cpp
+@@ -511,21 +511,26 @@ void SurfaceFlinger::init() {
+ 
+     status_t err;
+     Mutex::Autolock _l(mStateLock);
++    ALOGI("lock");
+ 
+     // initialize EGL for the default display
+     mEGLDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
++    ALOGI("display");
+     eglInitialize(mEGLDisplay, NULL, NULL);
++    ALOGI("egl");
+ 
+     // Initialize the H/W composer object.  There may or may not be an
+     // actual hardware composer underneath.
+     mHwc = new HWComposer(this,
+             *static_cast<HWComposer::EventHandler *>(this));
++    ALOGI("new");
+ 
+     // First try to get an ES2 config
+     err = selectEGLConfig(mEGLDisplay, mHwc->getVisualID(), EGL_OPENGL_ES2_BIT,
+             &mEGLConfig);
++    ALOGI("err");
+ 
+-    if (err != NO_ERROR) {
++    /*if (err != NO_ERROR) {
+         // If ES2 fails, try ES1
+         err = selectEGLConfig(mEGLDisplay, mHwc->getVisualID(),
+                 EGL_OPENGL_ES_BIT, &mEGLConfig);
+@@ -541,7 +546,7 @@ void SurfaceFlinger::init() {
+     if (err != NO_ERROR) {
+         // this EGL is too lame for android
+         LOG_ALWAYS_FATAL("no suitable EGLConfig found, giving up");
+-    }
++    }*/
+ 
+     // print some debugging info
+     EGLint r,g,b,a;

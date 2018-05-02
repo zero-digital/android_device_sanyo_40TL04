@@ -14,37 +14,50 @@
 # limitations under the License.
 #
 
+DEVICE_PACKAGE_OVERLAYS := device/sanyo/40TL04/overlay
+
+# .rc
 PRODUCT_COPY_FILES := \
-	device/sanyo/40TL04/init.rc:root/init.rc \
+        device/sanyo/40TL04/ueventd.rc:root/ueventd.rc \
 	device/sanyo/40TL04/init.freescale.rc:root/init.freescale.rc \
-	device/sanyo/40TL04/init.freescale.usb.rc:root/init.freescale.usb.rc \
 	device/sanyo/40TL04/ueventd.freescale.rc:root/ueventd.freescale.rc \
-	device/sanyo/40TL04/ts_calibrator:root/sbin/ts_calibrator \
-	device/sanyo/40TL04/keylayout/Benesse.kl:system/usr/keylayout/Benesse.kl \
-	device/sanyo/40TL04/keylayout/Rohm-CTP-BU21023GUL.idc:system/usr/idc/Rohm-CTP-BU21023GUL.idc \
-        device/sanyo/40TL04/vold.fstab.SDcard:system/etc/vold.fstab \
-	frameworks/base/data/etc/android.hardware.usb.host.xml:system/etc/permissions/android.hardware.usb.host.xml \
-	frameworks/base/data/etc/android.hardware.usb.accessory.xml:system/etc/permissions/android.hardware.usb.accessory.xml \
-        frameworks/base/data/etc/android.hardware.wifi.xml:system/etc/permissions/android.hardware.wifi.xml \
-        frameworks/base/data/etc/android.hardware.sensor.light.xml:system/etc/permissions/android.hardware.sensor.light.xml \
-        frameworks/base/data/etc/android.hardware.sensor.barometer.xml:system/etc/permissions/android.hardware.sensor.barometer.xml \
-        packages/wallpapers/LivePicker/android.software.live_wallpaper.xml:system/etc/permissions/android.software.live_wallpaper.xml
+	device/sanyo/40TL04/init.tsmode.rc:root/init.tsmode.rc
+
+#cmd
+PRODUCT_COPY_FILES += \
+        device/sanyo/40TL04/cmd/mlan_tool:system/bin/mlan_tool \
+        device/sanyo/40TL04/cmd/set_macaddr:system/bin/set_macaddr
+
+# other
+PRODUCT_COPY_FILES += \
+        device/sanyo/40TL04/other/mlan.ko:system/wifi/mlan.ko \
+        device/sanyo/40TL04/other/sd8787.ko:system/wifi/sd8787.ko\
+        device/sanyo/40TL04/other/sd8787_uapsta.bin:system/wifi/sd8787_uapsta.bin \
+        device/sanyo/40TL04/other/vold.fstab:system/etc/vold.fstab \
+device/sanyo/40TL04/other/hostapd.conf:system/etc/wifi/hostapd.conf \
+device/sanyo/40TL04/other/wpa_supplicant.conf:system/etc/wifi/wpa_supplicant.conf
+
+
+# These are the hardware-specific features
+PRODUCT_COPY_FILES += \
+        frameworks/native/data/etc/android.hardware.wifi.xml:system/etc/permissions/android.hardware.wifi.xml \
+	frameworks/native/data/etc/android.hardware.usb.host.xml:system/etc/permissions/android.hardware.usb.host.xml \
+	frameworks/native/data/etc/android.hardware.usb.accessory.xml:system/etc/permissions/android.hardware.usb.accessory.xml \
+        frameworks/native/data/etc/android.hardware.location.gps.xml:system/etc/permissions/android.hardware.location.gps.xml \
+	frameworks/native/data/etc/android.hardware.sensor.proximity.xml:system/etc/permissions/android.hardware.sensor.proximity.xml \
+        frameworks/native/data/etc/android.hardware.sensor.gyroscope.xml:system/etc/permissions/android.hardware.sensor.gyroscope.xml
 
 PRODUCT_PACKAGES := \
+        libasound\
         make_ext4fs \
-	com.android.future.usb.accessory
+	com.android.future.usb.accessory \
+	librs_jni
 
 PRODUCT_PROPERTY_OVERRIDES := \
-	hwui.render_dirty_regions=false
+	hwui.render_dirty_regions=false \
+        ro.config.low_ram=true \
+	wifi.interface=wlan0 \
+	wifi.supplicant_scan_interval=15
 
 PRODUCT_TAGS += dalvik.gc.type-precise
 
-PRODUCT_PACKAGES += \
-	librs_jni \
-	com.android.future.usb.accessory
-
-# Filesystem management tools
-PRODUCT_PACKAGES += \
-	make_ext4fs
-
-PRODUCT_CHARACTERISTICS := tablet

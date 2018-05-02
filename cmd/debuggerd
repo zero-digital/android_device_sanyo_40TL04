@@ -1,0 +1,14 @@
+#!/system/bin/sh
+#added by link2sd
+LOG=/data/link2sd-debuggerd.log
+set +e
+echo "$(date) mounting..." > $LOG
+sleep 2
+mount -t ext3 -o rw /dev/block/vold/179:10 /data/sdext2 1>>$LOG 2>>$LOG
+
+mount -t ext3 -o rw /dev/block/mmcblk1p2 /data/sdext2 1>>$LOG 2>>$LOG
+
+mount >> $LOG
+echo "$(date) mount finished" >> $LOG
+echo debuggerd.bin launched >> $LOG
+exec /system/bin/debuggerd.bin

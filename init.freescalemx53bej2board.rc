@@ -1,0 +1,176 @@
+on post-fs-data
+
+    # Set permission for IIM node
+    symlink /dev/mxc_iim /dev/mxc_mem
+
+#    symlink /dev/ttymxc1 /dev/gpsdevice
+#    setprop ro.kernel.android.gps ttya
+    #export uart2 and set the default value
+#    write /sys/class/gpio/export 44
+#    write /sys/class/gpio/gpio44/direction "out"
+#    write /sys/class/gpio/gpio44/value 1
+
+    # 3D acceleration property
+    setprop debug.sf.showfps    0
+    setprop debug.sf.enable_hgl 1
+    setprop debug.egl.hw	1
+
+    # fsl omx graphic manager media framework property
+    setprop media.omxgm.enable-player 1
+	setprop media.omxgm.enable-record 1
+    setprop media.omxgm.enable-scan 1
+
+    # set video render type
+    setprop rw.VIDEO_RENDER_NAME video_render.overlay
+
+    #Define the config for dual camera
+    #For landscape mode, orient is 0
+    #For portrait mode, orient is 90
+    #the android before honycomb are all in portrait mode
+#    setprop back_camera_name ov
+#    setprop back_camera_name rn
+    setprop back_camera_orient 0
+#shutter sound mute setting
+	setprop ro.camera.sound.forced 1
+
+
+    # Set OpenGLES version
+    setprop ro.opengles.version 131072
+
+    # Disable UI output for second display during video playback
+    setprop rw.secfb.disable-overlay  0
+
+    # Enable auto configuration with 1, disable with 0
+    setprop rw.AUTO_CONFIG_DISPLAY  0
+
+    # Set rotation to 270 to cofigure as portrait mode
+    setprop ro.sf.hwrotation 0
+
+	#--- Sanyo CE Add
+	# Set Accelerometor type 1:Front -1:Back
+    # setprop ro.Accelerometor -1
+	#--- Sanyo CE Add
+
+    # hdmi audio output
+    setprop ro.HDMI_AUDIO_OUTPUT 0
+
+    # Video output choices for dual display
+    # Video on secondary display
+    setprop rw.SIN_VIDEO_DUAL_UI 1
+    # UI on primary display
+    #(seconday display no more than 720P for imx53)
+    setprop rw.DUAL_VIDEO_SIN_UI 0
+    # Unsupported
+    #setprop rw.DUAL_VIDEO_DUAL_UI 0
+
+    # over scan percent control
+    setprop sys.overscan.percent 0
+
+    # Set light sensor sysfs path and light sensor threshold lux value
+#    setprop ro.hardware.lightsensor "/sys/class/i2c-dev/i2c-2/device/2-0044/"
+#    setprop ro.lightsensor.threshold  20
+
+    # Set mag3110 sensor sysfs path
+#    setprop ro.hardware.magsensor "/sys/class/i2c-dev/i2c-1/device/1-000e/"
+#    setprop ro.sensor.mag_cfg_file  "/system/etc/magd.conf"
+
+    # Set wifi ap interface:
+#    setprop	wifi.ap.interface wlap0
+
+# DEL_S SCE BugID=13
+#    # Enable adb with 1
+#    setprop persist.service.adb.enable 1
+#DEL_E SCE
+
+# Daemon processes to be run by init.
+#service hciattach /system/bin/logwrapper /system/bin/hciattach -n ttymxc2 ath3k 3000000 flow sleep
+#    user root
+#    group bluetooth net_bt_admin
+#    disabled
+#    oneshot
+
+# magd daemon
+#service magd /system/bin/magd
+#    user system
+#    group input
+#    oneshot
+
+# Orion InG
+#service ing /system/etc/gps/ingsvcd -c /system/etc/gps/Orion.ini
+#    user root
+#    group gps
+#    disabled
+#    oneshot
+
+service wpa_supplicant /system/bin/logwrapper /system/bin/wpa_supplicant -Dwext -iwlan0 -c/data/misc/wifi/wpa_supplicant.conf
+    class main
+    socket wpa_wlan0 dgram 660 system wifi
+    group system wifi inet
+    disabled
+    oneshot
+
+service pppd_pppoe /system/etc/init.pppoe-pppd
+        class main
+	user root
+	disabled
+	oneshot
+
+#service aerial_tool_usb /system/bin/aerial_tool_usb
+#    disabled
+#    oneshot
+
+service mlan_tool /system/bin/mlan_tool
+    class main
+# Enable  testmode sdcard
+#service mlan_tool_rftest /system/bin/mlan_tool_rftest
+#    disabled
+    oneshot
+
+service ts_calibrator /sbin/ts_calibrator
+    class main
+    oneshot
+
+service ntpclient /system/bin/ntpclient -h ntp.nict.jp -s
+    class main
+    disabled
+    oneshot
+
+#Factory Test Mode Process
+service tsmode /system/bin/sh init.tsmode.rc
+    class main
+    oneshot
+
+on fs
+# mount ext4 partitions
+# If you want to boot it from SD card, modify all the 'mmcblk0px' to 'mmcblk1px'.
+    mount ext4 /dev/block/mmcblk1p2 /system
+    mount ext4 /dev/block/mmcblk1p2 /system ro remount
+    mount ext4 /dev/block/mmcblk1p5 /data nosuid nodev nodiratime noatime noauto_da_alloc journal_checksum
+    mount ext4 /dev/block/mmcblk1p6 /cache nosuid nodev
+    mount ext4 /dev/block/mmcblk1p7 /factory nosuid nodev
+
+on fs_emmc
+# mount ext4 partitions when kernel on eMMC loading
+    mount ext4 /dev/block/mmcblk0p2 /system
+    mount ext4 /dev/block/mmcblk0p2 /system ro remount
+    mount ext4 /dev/block/mmcblk0p5 /data nosuid nodev nodiratime noatime noauto_da_alloc journal_checksum
+    mount ext4 /dev/block/mmcblk0p6 /cache nosuid nodev
+    mount ext4 /dev/block/mmcblk0p7 /factory nosuid nodev
+
+on fs_sdcard
+# mount ext4 partitions when kernel on SDcard loading
+    mount ext4 /dev/block/mmcblk1p2 /system
+    mount ext4 /dev/block/mmcblk1p2 /system ro remount
+    mount ext4 /dev/block/mmcblk1p5 /data nosuid nodev nodiratime noatime noauto_da_alloc journal_checksum
+    mount ext4 /dev/block/mmcblk1p6 /cache nosuid nodev
+    mount ext4 /dev/block/mmcblk1p7 /factory nosuid nodev
+
+on fs_sdcard_test
+# mount ext4 partitions when kernel on SDcard loading
+    mount ext4 /dev/block/mmcblk1p2 /system
+    mount ext4 /dev/block/mmcblk1p2 /system ro remount
+    mount ext4 /dev/block/mmcblk1p5 /data nosuid nodev nodiratime noatime noauto_da_alloc journal_checksum
+    mount ext4 /dev/block/mmcblk1p6 /cache nosuid nodev
+    mount ext4 /dev/block/mmcblk0p7 /factory nosuid nodev
+    mount ext4 /dev/block/mmcblk0p2 /system_eMMC
+    mount ext4 /dev/block/mmcblk0p2 /system_eMMC ro remount
